@@ -112,7 +112,7 @@ function Cover() {
       if (!response.ok) {
         throw new Error("Failed to sign up.");
       }
-      navigate('/dashboard');
+      navigate('/authentication/sign-in');
     })
     .catch(error => {
       // handle error here

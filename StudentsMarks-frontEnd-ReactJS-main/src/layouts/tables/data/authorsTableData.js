@@ -14,36 +14,128 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-
-// Material Dashboard 2 React components
 import axios from "axios";
+import PdfLinkCell from "../data/PdfLinkCell";
 
-const authorsTableData = async () => {
+// Function to truncate text
+function truncateText(text, maxLength) {
+  if (text.length <= maxLength) return text;
+  return text.substr(0, maxLength - 3) + '...';
+}
+
+// Function to highlight the search term in the text
+function highlightMatch(text, searchTerm) {
+  const regex = new RegExp(`(${searchTerm})`, 'gi');
+  return text.replace(regex, '<mark>$1</mark>');
+}
+
+const authorsTableData = async (searchQuery) => {
   const columns = [
-    // Define your columns here
-    // For example:
     { Header: "#", accessor: (row, index) => index + 1, width: "10%", align: "left" },
-    { Header: "PDF Text Content", accessor: "text-content", width: "30%", align: "left" },
-    // { Header: "PDF Path", accessor: "pdfPath", width: "60%", align: "left", Cell: PdfLinkCell },
-    
+    { Header: "PDF Path", accessor: "pdfPath", width: "60%", align: "left", Cell: PdfLinkCell },
+    { Header: "Text Content", accessor: "text_content", width: "30%", align: "left", Cell: ({ cell: { value } }) => highlightMatch(truncateText(value, 50), searchQuery) },
   ];
 
-  // Fetch data containing PDFs and their highlights
-  // For example:
-  const response = await axios.get("http://localhost:8000/api/fetch_pdfs_with_highlights");
-  const pdfData = response.data; // This should be an array of objects, each containing PDF and highlight information
+  let rows = [];
 
-  const rows = pdfData.map((pdf, index) => ({
-    "#": index + 1,
-    // pdfPath: pdf.pdfPath,
-    pdfTextContent: pdf.pdfTextContent, // The text content of the PDF
-    highlights: pdf.highlights, // Array of highlights for this PDF
-  }));
+  try {
+    const response = await axios.get(`http://localhost:8000/api/search?query=${searchQuery}`);
+    console.log("API Response:", response.data);
+
+    if (Array.isArray(response.data)) {
+      const pdfs = response.data.map((pdf) => ({
+        "#": pdf.uuid,
+        pdfPath: pdf.uuid,
+        uuid: pdf.uuid,
+        text_content: pdf.text_content, // Add the text_content property to the row
+      }));
+
+      rows = pdfs;
+    } else {
+      console.log("No 'data' property found in API response.");
+    }
+  } catch (error) {
+    console.error("Error fetching indexed documents:", error);
+  }
 
   return { columns, rows };
 };
 
 export default authorsTableData;
+
+// import axios from "axios";
+// import PdfLinkCell from "../data/PdfLinkCell";
+
+// const authorsTableData = async (searchQuery) => {
+//   const columns = [
+//     { Header: "#", accessor: (row, index) => index + 1, width: "10%", align: "left" },
+//     { Header: "PDF Path", accessor: "pdfPath", width: "60%", align: "left", Cell: PdfLinkCell },
+//     { Header: "UUID", accessor: "uuid", width: "30%", align: "left" },
+//   ];
+
+//   let rows = [];
+
+//   try {
+//     // Make sure to use the searchQuery parameter in the API request
+//     const response = await axios.get(`http://localhost:8000/api/search?query=${searchQuery}`);
+//     console.log("API Response:", response.data);
+  
+//     // Check if the 'data' property is present in the API response
+//     if (Array.isArray(response.data)) {
+//       const pdfs = response.data.map((pdf) => ({
+//         "#": pdf.uuid, // Assuming 'id' is the uuid property in your API response
+//         pdfPath: pdf.uuid, // Access the UUID as pdfPath to avoid duplicate column id
+//         uuid: pdf.uuid,
+//       }));
+  
+//       rows = pdfs;
+//     } else {
+//       console.log("No 'data' property found in API response.");
+//     }
+  
+//   } catch (error) {
+//     console.error("Error fetching indexed documents:", error);
+//   }
+
+//   return { columns, rows };
+// };
+
+// export default authorsTableData;
+
+
+
+
+// Material Dashboard 2 React components
+// import axios from "axios";
+
+// const authorsTableData = async () => {
+//   const columns = [
+//     // Define your columns here
+//     // For example:
+//     { Header: "#", accessor: (row, index) => index + 1, width: "10%", align: "left" },
+//     { Header: "PDF Text Content", accessor: "text-content", width: "30%", align: "left" },
+//     // { Header: "PDF Path", accessor: "pdfPath", width: "60%", align: "left", Cell: PdfLinkCell },
+    
+//   ];
+
+//   // Fetch data containing PDFs and their highlights
+//   // For example:
+//   const response = await axios.get("http://localhost:8000/api/");
+//   const pdfData = response.data; // This should be an array of objects, each containing PDF and highlight information
+
+//   const rows = pdfData.map((pdf, index) => ({
+//     "#": index + 1,
+//     // pdfPath: pdf.pdfPath,
+//     pdfTextContent: pdf.pdfTextContent, // The text content of the PDF
+//     highlights: pdf.highlights, // Array of highlights for this PDF
+//   }));
+
+//   return { columns, rows };
+// };
+
+// export default authorsTableData;
+
+
 // import MDBox from "components/MDBox";
 // import MDTypography from "components/MDTypography";
 // import MDAvatar from "components/MDAvatar";

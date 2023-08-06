@@ -59,6 +59,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Setting the navbar type
@@ -90,6 +91,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+  const handleSearch = () => {
+    // Pass the searchQuery to the onSearch function
+    onSearch(searchQuery);
+  };
 
   // Render the notifications menu
   const renderMenu = () => (
@@ -134,9 +139,14 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
         </MDBox>
         {isMini ? null : (
-          <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
+          <MDBox>
             <MDBox pr={1}>
-              <MDInput label="Search here" />
+              <MDInput
+                label="Search here"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Icon onClick={handleSearch}>search</Icon>
             </MDBox>
           </MDBox>
         )}
